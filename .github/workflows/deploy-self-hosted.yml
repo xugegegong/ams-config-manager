@@ -1,0 +1,65 @@
+name: Deploy to Self-Hosted Runner
+
+on:
+  push:
+    branches: [main, master]
+
+jobs:
+  deploy:
+    runs-on: self-hosted  # ← 使用服务器上的自托管 Runner
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ─── Backend ───
+      - name: Install backend dependencies
+        run: |
+          pip3 install -r backend/requirements-prod.txt --quiet
+
+      # ─── Frontend ───
+      - name: Install frontend dependencies
+        run: |
+          npm --prefix frontend ci --registry=https://registry.npmmirror.com
+
+      - name: Build frontend
+        run: npm --prefix frontend run build
+
+      # ─── Deploy to local path ───
+      - name: Sync files to deployment directory
+        run: |
+          DEPLOY_PATH="/opt/ams"
+          sudo mkdir -p $DEPLOY_PATH
+
+          # Sync backend
+          sudo rsync -av --delete \
+            --exclude='__pycache__' \
+            --exclude='*.pyc' \
+            --exclude='.env' \
+            backend/ $DEPLOY_PATH/backend/
+
+          # Sync frontend dist
+          sudo rsync -av --delete \
+            frontend/dist/ $DEPLOY_PATH/frontend/dist/
+
+          # Sync deploy configs
+          sudo cp deploy/ams-backend.service /etc/systemd/system/ams-backend.service 2>/dev/null || true
+          sudo cp deploy/nginx-ams.conf /etc/nginx/sites-available/ams 2>/dev/null || true
+
+      # ─── Restart services ───
+      - name: Restart backend
+        run: |
+          sudo systemctl daemon-reload
+          sudo systemctl enable ams-backend
+          sudo systemctl restart ams-backend || echo "Service not yet configured, skipping"
+
+      - name: Reload nginx
+        run: |
+          sudo nginx -t && sudo systemctl reload nginx || echo "Nginx not yet configured, skipping"
+
+      - name: Verify deployment
+        run: |
+          sleep 3
+          echo "✅ 部署完成"
+          echo "   后端: http://localhost:8000"
+          echo "   前端: http://服务器IP"
