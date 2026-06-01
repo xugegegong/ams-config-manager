@@ -1,15 +1,16 @@
 [Unit]
 Description=AMS Config Manager Backend
-After=network.target mysql.service
+After=network.target
 
 [Service]
 Type=simple
-User=www-data
+User=actions-runner
+Group=actions-runner
 WorkingDirectory=/opt/ams/backend
-ExecStart=/usr/bin/python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+ExecStart=/opt/ams/venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 Restart=always
 RestartSec=5
-Environment=DATABASE_URL=mysql+pymysql://ams_user:password@localhost:3306/ams_config
+Environment=PYTHONPATH=/opt/ams/backend
 
 [Install]
 WantedBy=multi-user.target
