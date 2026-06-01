@@ -1,0 +1,74 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches: [main, master]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ─── Backend ───
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install backend dependencies
+        run: |
+          pip install -r backend/requirements-prod.txt
+
+      # ─── Frontend ───
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install frontend dependencies
+        run: npm --prefix frontend ci
+
+      - name: Build frontend
+        run: npm --prefix frontend run build
+
+      # ─── Deploy via SSH ───
+      - name: Deploy to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          port: ${{ secrets.DEPLOY_PORT || 22 }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          source: |
+            backend/
+            frontend/dist/
+            .github/
+          target: ${{ secrets.DEPLOY_PATH }}
+          strip_components: 0
+
+      - name: Remote deploy commands
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          port: ${{ secrets.DEPLOY_PORT || 22 }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            cd ${{ secrets.DEPLOY_PATH }}
+
+            # Install/update Python deps
+            pip install -r backend/requirements-prod.txt --quiet
+
+            # Restart backend service
+            if systemctl is-active --quiet ams-backend; then
+              sudo systemctl restart ams-backend
+            else
+              echo "Systemd service not found, restart manually"
+            fi
+
+            echo "✅ Deployment complete"
+            echo "   Backend:  http://${{ secrets.DEPLOY_HOST }}:8000"
+            echo "   Frontend: served by nginx from frontend/dist/"
