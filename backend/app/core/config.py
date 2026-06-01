@@ -1,6 +1,12 @@
 """Application configuration."""
-from pydantic import BaseSettings
 from typing import Optional
+
+try:
+    # Pydantic v2
+    from pydantic_settings import BaseSettings
+except ImportError:
+    # Pydantic v1
+    from pydantic import BaseSettings
 
 
 class Settings(BaseSettings):

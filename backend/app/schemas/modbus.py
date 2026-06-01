@@ -1,5 +1,5 @@
 """Modbus and signal point related schemas."""
-from pydantic import BaseModel
+from app.core.compat import CompatBaseModel as BaseModel
 from typing import Optional, List
 
 
@@ -31,9 +31,6 @@ class ModbusConfigResponse(BaseModel):
     port: int
     points_count: int = 0
 
-    class Config:
-        orm_mode = True
-
 
 class SignalPointCreate(BaseModel):
     modbus_config_id: int
@@ -62,9 +59,6 @@ class SignalPointResponse(BaseModel):
     data_type: Optional[str]
     ams_module_id: Optional[str]
     is_active: int
-
-    class Config:
-        orm_mode = True
 
 
 class ConfigGenerateResponse(BaseModel):

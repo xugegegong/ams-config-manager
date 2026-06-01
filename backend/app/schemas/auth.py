@@ -1,5 +1,5 @@
 """Auth-related Pydantic schemas."""
-from pydantic import BaseModel
+from app.core.compat import CompatBaseModel as BaseModel
 
 
 class LoginRequest(BaseModel):
@@ -19,6 +19,3 @@ class UserInfo(BaseModel):
     username: str
     display_name: str
     is_admin: bool
-
-    class Config:
-        orm_mode = True

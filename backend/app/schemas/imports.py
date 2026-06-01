@@ -1,5 +1,5 @@
 """Excel import and version diff related schemas."""
-from pydantic import BaseModel
+from app.core.compat import CompatBaseModel as BaseModel
 from typing import Optional, List, Dict, Any
 
 
@@ -37,9 +37,6 @@ class ImportTemplateResponse(BaseModel):
     ship_series: str
     column_mapping: Dict[str, Any]
     description: str
-
-    class Config:
-        orm_mode = True
 
 
 class ExcelPreview(BaseModel):

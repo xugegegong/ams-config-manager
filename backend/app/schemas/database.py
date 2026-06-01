@@ -1,5 +1,5 @@
 """Database connection related schemas."""
-from pydantic import BaseModel
+from app.core.compat import CompatBaseModel as BaseModel
 
 
 class DBConnectRequest(BaseModel):
