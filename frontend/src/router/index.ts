@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Login from '../views/Login.vue'
 import Database from '../views/Database.vue'
 import EngineRoom from '../views/EngineRoom.vue'
 import Cfg2DB from '../views/Cfg2DB.vue'
@@ -8,7 +7,6 @@ import Help from '../views/Help.vue'
 
 const routes = [
   { path: '/', redirect: '/database' },
-  { path: '/login', name: 'Login', component: Login },
   { path: '/database', name: 'Database', component: Database },
   { path: '/engine-room', name: 'EngineRoom', component: EngineRoom },
   { path: '/cfg2db', name: 'Cfg2DB', component: Cfg2DB },

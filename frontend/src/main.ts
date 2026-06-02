@@ -1,5 +1,4 @@
 import { createApp } from 'vue'
-import { createPinia } from 'pinia'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
@@ -10,12 +9,10 @@ import './assets/dark-theme.css'
 
 const app = createApp(App)
 
-// Register all Element Plus icons
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
 
-app.use(createPinia())
 app.use(router)
-app.use(ElementPlus, { locale: undefined })
+app.use(ElementPlus)
 app.mount('#app')

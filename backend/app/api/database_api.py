@@ -1,18 +1,13 @@
-"""Database connection test API (connects to target ship database)."""
+"""Database connection test API."""
 import pymysql
-from fastapi import APIRouter, Depends
-from app.core.security import get_current_user
-from app.models.user import User
+from fastapi import APIRouter
 from app.schemas.database import DBConnectRequest, DBConnectResponse
 
 router = APIRouter(prefix="/api/database", tags=["database"])
 
 
 @router.post("/test-connection", response_model=DBConnectResponse)
-def test_connection(
-    req: DBConnectRequest,
-    current_user: User = Depends(get_current_user),
-):
+def test_connection(req: DBConnectRequest):
     """Test MySQL connection with provided credentials."""
     try:
         conn = pymysql.connect(
