@@ -52,11 +52,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { dbApi } from '../api'
-import { useAuthStore } from '../store/auth'
 
-const auth = useAuthStore()
 const testing = ref(false)
 const connected = ref(false)
 const result = ref<any>(null)
@@ -86,8 +84,4 @@ async function handleTest() {
     testing.value = false
   }
 }
-
-onMounted(() => {
-  auth.isLoggedIn
-})
 </script>
